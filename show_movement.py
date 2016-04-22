@@ -7,10 +7,13 @@ import imutils
 start = 12 * 60 + 15
 end = 12 * 60 + 19
 
+basedir = '/root/data'
+
 videos = ['opendap_hyrax_large_format_RS03ASHS-PN03B-06-CAMHDA301_2016_01_01_CAMHDA301-20160101T000000Z.mp4',
           'opendap_hyrax_large_format_RS03ASHS-PN03B-06-CAMHDA301_2016_01_01_CAMHDA301-20160101T060000Z.mp4',
           'opendap_hyrax_large_format_RS03ASHS-PN03B-06-CAMHDA301_2016_01_01_CAMHDA301-20160101T180000Z.mp4',
           'opendap_hyrax_large_format_RS03ASHS-PN03B-06-CAMHDA301_2016_02_10_CAMHDA301-20160210T180000Z.mp4']
+videos = [os.path.join(basedir, p) for p in videos]
 
 
 class ImageUtils:
