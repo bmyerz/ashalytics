@@ -8,8 +8,8 @@ end = 12*60 + 19
 
 cap = cv2.VideoCapture('opendap_hyrax_large_format_RS03ASHS-PN03B-06-CAMHDA301_2016_01_01_CAMHDA301-20160101T000000Z.mov')
 fps = cap.get(cv2.CAP_PROP_FPS)
-w = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
-h = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 codec = cap.get(cv2.CAP_PROP_FOURCC)
 print "The video is {} fps".format(fps)
 
