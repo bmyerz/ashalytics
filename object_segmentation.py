@@ -16,6 +16,8 @@ class ImageSegmentation:
         for frame in self.inputf.frames():
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+            # I noticed that background tends to be white, but I want objects white
+            thresh = (255-thresh)
             cv2.imwrite("is_thresh.jpg", thresh)
             break
         yield None
