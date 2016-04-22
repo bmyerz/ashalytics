@@ -24,10 +24,7 @@ orig_out = cv2.VideoWriter("selected_orig.avi",
                            cv2.VideoWriter_fourcc(*'MJPG'),
                            fps,
                            (int(w), int(h)))
-thresh_out = cv2.VideoWriter("selected_thresh.avi",
-                             cv2.VideoWriter_fourcc(*'MJPG'),
-                             fps,
-                             (640, 480))
+thresh_out = None
 
 # use the first frame as the golden copy
 firstFrame = None
@@ -48,9 +45,13 @@ while cap.isOpened() and cap.get(cv2.CAP_PROP_POS_MSEC) < end * 1000:
     # TODO: so have to play with the stencil size
     gray = cv2.GaussianBlur(gray, (21, 21), 0)
 
-    # store first frame
+    # store first frame and initialize the writer
     if firstFrame is None:
         firstFrame = gray
+        thresh_out = cv2.VideoWriter("selected_thresh.avi",
+            cv2.VideoWriter_fourcc(*'MJPG'),
+            fps,
+            (firstFrame.cols, firstFrame.rows))
         continue
 
     # compute the absolute difference between the current frame and
