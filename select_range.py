@@ -12,15 +12,17 @@ print "The video is {} fps".format(fps)
 
 fn = 0
 ncaptured = 0
-while cap.isOpened():
+
+# seek to start
+cv2.set(cv2.CV_CAP_PROP_POS_MSEC, start*1000)
+
+while cap.isOpened() and cv2.get(cv2.CV_CAP_PROP_POS_MSEC) < end*1000:
     ret, frame = cap.read()
     if not ret:
         break
 
-    pos_in_sec = float(fn)/fps
-    if pos_in_sec >= start and pos_in_sec <= end:
-        cv2.imwrite('frame_{0}.jpg'.format(fn), frame)
-        ncaptured += 1
+    cv2.imwrite('frame_{0}.jpg'.format(fn), frame)
+    ncaptured += 1
 
     fn += 1
 
