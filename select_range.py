@@ -14,9 +14,9 @@ fn = 0
 ncaptured = 0
 
 # seek to start
-cap.set(cv2.CV_CAP_PROP_POS_MSEC, start*1000)
+cap.set(cv2.CAP_PROP_POS_MSEC, start*1000)
 
-while cap.isOpened() and cap.get(cv2.CV_CAP_PROP_POS_MSEC) < end*1000:
+while cap.isOpened() and cap.get(cv2.CAP_PROP_POS_MSEC) < end*1000:
     ret, frame = cap.read()
     if not ret:
         break
