@@ -21,6 +21,7 @@ cap.set(cv2.CAP_PROP_POS_MSEC, start*1000)
 # video writer to same format (slightly different fps?)
 out = cv2.VideoWriter("selected.avi",
                       cv2.VideoWriter_fourcc(*'MJPG'),
+                      fps,
                       (int(w), int(h)))
 
 while cap.isOpened() and cap.get(cv2.CAP_PROP_POS_MSEC) < end*1000:
