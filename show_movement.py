@@ -68,16 +68,15 @@ while cap.isOpened() and cap.get(cv2.CAP_PROP_POS_MSEC) < end * 1000:
     frameDelta = cv2.absdiff(firstFrame, blurred)
     thresh = cv2.threshold(frameDelta, 25, 255, cv2.THRESH_BINARY)[1]
 
-    # dilate the thresholded image to fill in holes, then find contours
-    # on thresholded image
-    thresh = cv2.dilate(thresh, None, iterations=2)
+    # dilate the thresholded image to fill in holes
+    dilated = cv2.dilate(thresh, None, iterations=2)
 
     orig_out.write(frame)
     blurred_with_color = cv2.merge([blurred]*3)
     blurred_out.write(blurred_with_color)
     fdelta_with_color = cv2.merge([frameDelta]*3)
     fdelta_out.write(fdelta_with_color)
-    thresh_with_color = cv2.merge([thresh]*3)
+    thresh_with_color = cv2.merge([dilated]*3)
     thresh_out.write(thresh_with_color)
 
     fn += 1
