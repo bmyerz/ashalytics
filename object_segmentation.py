@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from common import Capture
 from videodb import getvideopaths
+import sys
 
 # 10:48 - 11:15  (could be less)
 start = 10 * 60 + 48
@@ -9,8 +10,9 @@ end = 11 * 60 + 15
 
 
 class ImageSegmentation:
-    def __init__(self, inputf):
+    def __init__(self, inputf, dt_param=0.7):
         self.inputf = inputf
+        self.dt_param = dt_param
 
     def frames(self):
         for frame in self.inputf.frames():
@@ -35,7 +37,7 @@ class ImageSegmentation:
 
             # Finding sure foreground area
             dist_transform = cv2.distanceTransform(opening,cv2.DIST_L2,5)
-            ret, sure_fg = cv2.threshold(dist_transform,0.7*dist_transform.max(),255,0)
+            ret, sure_fg = cv2.threshold(dist_transform,self.dt_param*dist_transform.max(),255,0)
             cv2.imwrite("is02b_sure_fg.jpg", sure_fg)
 
             # unkown region, i.e. part of image we are unsure about
@@ -62,9 +64,14 @@ class ImageSegmentation:
         yield None
 
 
-cap = cv2.VideoCapture(getvideopaths()[0])
-input_frames = Capture(cap, start, end)
-seg = ImageSegmentation(input_frames)
-[_ for _ in seg.frames()]
-cap.release()
+if __name__ == '__main__':
+    dt_param = 0.7
+    if len(sys.argv) > 1:
+        dt_param = float(sys.argv[1])
+
+    cap = cv2.VideoCapture(getvideopaths()[0])
+    input_frames = Capture(cap, start, end)
+    seg = ImageSegmentation(input_frames, dt_param=dt_param)
+    [_ for _ in seg.frames()]
+    cap.release()
 
