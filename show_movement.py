@@ -2,12 +2,13 @@
 import numpy as np
 import cv2
 import imutils
+import os
 
 # 12:15 - 12:19
 start = 12 * 60 + 15
 end = 12 * 60 + 19
 
-basedir = '/root/data'
+basedir = '/root/data/videos'
 
 videos = ['opendap_hyrax_large_format_RS03ASHS-PN03B-06-CAMHDA301_2016_01_01_CAMHDA301-20160101T000000Z.mp4',
           'opendap_hyrax_large_format_RS03ASHS-PN03B-06-CAMHDA301_2016_01_01_CAMHDA301-20160101T060000Z.mp4',
@@ -75,9 +76,11 @@ class MotionEstimation(object):
         self.name = name
         w = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         h = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    	self.fps = self.cap.get(cv2.CAP_PROP_FPS)
+	print self.fps
         self.orig_out = cv2.VideoWriter("{}_orig.avi".format(self.name),
                            cv2.VideoWriter_fourcc(*'MJPG'),
-                           fps,
+                           self.fps,
                            (int(w), int(h)))
 
     def frames(self):
@@ -96,15 +99,15 @@ class MotionEstimation(object):
                 self.firstFrame = blurred
                 self.thresh_out = cv2.VideoWriter("{}_thresh.avi".format(self.name),
                                              cv2.VideoWriter_fourcc(*'MJPG'),
-                                             fps,
+                                             self.fps,
                                              (self.firstFrame.shape[1], self.firstFrame.shape[0]))
                 self.fdelta_out = cv2.VideoWriter("{}_fdelta.avi".format(self.name),
                                              cv2.VideoWriter_fourcc(*'MJPG'),
-                                             fps,
+                                             self.fps,
                                              (self.firstFrame.shape[1], self.firstFrame.shape[0]))
                 self.blurred_out = cv2.VideoWriter("{}_blurred.avi".format(self.name),
                                               cv2.VideoWriter_fourcc(*'MJPG'),
-                                              fps,
+                                              self.fps,
                                               (self.firstFrame.shape[1], self.firstFrame.shape[0]))
                 continue
 
@@ -132,13 +135,9 @@ class MotionEstimation(object):
 
 for v in videos:
     cap = cv2.VideoCapture(v)
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    w = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
-    h = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-    print "The video is {} fps".format(fps)
 
     input_frames = Capture(cap, start, end)
-    sink = MotionEstimation(input_frames, cap)
+    sink = MotionEstimation(input_frames, cap, v)
 
     # run to completion
     [_ for _ in sink.frames()]
