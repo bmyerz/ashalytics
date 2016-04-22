@@ -10,7 +10,6 @@ cap = cv2.VideoCapture('opendap_hyrax_large_format_RS03ASHS-PN03B-06-CAMHDA301_2
 fps = cap.get(cv2.CAP_PROP_FPS)
 w = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
 h = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-codec = cap.get(cv2.CAP_PROP_FOURCC)
 print "The video is {} fps".format(fps)
 
 fn = 0
@@ -20,9 +19,8 @@ ncaptured = 0
 cap.set(cv2.CAP_PROP_POS_MSEC, start*1000)
 
 # video writer to same format (slightly different fps?)
-out = cv2.VideoWriter("selected.mp4",
-                      codec,
-                      int(fps),
+out = cv2.VideoWriter("selected.avi",
+                      cv2.VideoWriter_fourcc(*'MJPG'),
                       (int(w), int(h)))
 
 while cap.isOpened() and cap.get(cv2.CAP_PROP_POS_MSEC) < end*1000:
