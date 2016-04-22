@@ -20,7 +20,10 @@ ncaptured = 0
 cap.set(cv2.CAP_PROP_POS_MSEC, start*1000)
 
 # video writer to same format (slightly different fps?)
-out = cv2.VideoWriter("selected.mp4", codec, int(fps), (w, h))
+out = cv2.VideoWriter("selected.mp4",
+                      codec,
+                      int(fps),
+                      (w, h))
 
 while cap.isOpened() and cap.get(cv2.CAP_PROP_POS_MSEC) < end*1000:
     ret, frame = cap.read()
