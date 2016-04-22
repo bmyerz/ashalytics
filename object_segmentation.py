@@ -18,12 +18,12 @@ class ImageSegmentation:
             ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
             # invert so that background=black, object=white
             thresh = (255-thresh)
-            cv2.imwrite("is_thresh.jpg", thresh)
+            cv2.imwrite("is00_thresh.jpg", thresh)
 
             # noise removal
             kernel = np.ones((3, 3), np.uint8)
             opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=2)
-            cv2.imwrite("is_opening.jpg", opening)
+            cv2.imwrite("is01_opening.jpg", opening)
             # now white covers foreground but has foreground false positives
             # may be sufficient if we don't care about separating touching objects;
             # also I think there will be cases like the spider where the threshould level
@@ -31,32 +31,32 @@ class ImageSegmentation:
 
             # black cover background with background false positives
             sure_bg = cv2.dilate(opening, kernel, iterations=3)
-            cv2.imwrite("is_sure_bg.jpg", sure_bg)
+            cv2.imwrite("is02a_sure_bg.jpg", sure_bg)
 
             # Finding sure foreground area
             dist_transform = cv2.distanceTransform(opening,cv2.DIST_L2,5)
             ret, sure_fg = cv2.threshold(dist_transform,0.7*dist_transform.max(),255,0)
-            cv2.imwrite("is_sure_fg.jpg", sure_fg)
+            cv2.imwrite("is02b_sure_fg.jpg", sure_fg)
 
             # unkown region, i.e. part of image we are unsure about
             sure_fg = np.uint8(sure_fg)
             unknown = cv2.subtract(sure_bg,sure_fg)
-            cv2.imwrite("is_unknown.jpg", unknown)
+            cv2.imwrite("is03_unknown.jpg", unknown)
 
             # Marker labelling
             ret, markers = cv2.connectedComponents(sure_fg)
 
             # Add one to all labels so that sure background is not 0, but 1
             markers = markers+1
-            cv2.imwrite("is_markers.jpg", markers)
+            cv2.imwrite("is04_markers.jpg", markers)
 
             # Now, mark the region of unknown with zero
             markers[unknown==255] = 0
-            cv2.imwrite("is_markers_u0.jpg", markers)
+            cv2.imwrite("is05_markers_u0.jpg", markers)
 
             markers = cv2.watershed(frame, markers)
             frame[markers == -1] = [255,0,0]
-            cv2.imwrite("is_final.jpg", frame)
+            cv2.imwrite("is07_final.jpg", frame)
 
             break
         yield None
