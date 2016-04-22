@@ -2,13 +2,18 @@
 import numpy as np
 import cv2
 
-cap = cv2.VideoCapture('sample_iTunes.mov')
+capture_period_s = 5
 
-for i in range(0, 1000):
-    if i % 100 == 0:
+cap = cv2.VideoCapture('sample_iTunes.mov')
+fps = cap.get(cv2.CAP_PROP_FPS)
+
+fn = 0
+while cap.isOpened():
+    if int(float(fn)/fps) % capture_period_s == 0:
         ret, frame = cap.read()
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        cv2.imwrite('frame_{0}.jpg'.format(i), frame)
+        cv2.imwrite('frame_{0}.jpg'.format(fn), frame)
+    fn += 1
 
 
 cap.release()
