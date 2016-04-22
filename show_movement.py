@@ -2,49 +2,12 @@
 import numpy as np
 import cv2
 import imutils
-import os
+from common import ImageUtils, Capture
+from videodb import getvideopaths
 
 # 12:15 - 12:19
 start = 12 * 60 + 15
 end = 12 * 60 + 19
-
-basedir = '/root/data/videos'
-
-videos = ['opendap_hyrax_large_format_RS03ASHS-PN03B-06-CAMHDA301_2016_01_01_CAMHDA301-20160101T000000Z.mp4',
-          'opendap_hyrax_large_format_RS03ASHS-PN03B-06-CAMHDA301_2016_01_01_CAMHDA301-20160101T060000Z.mp4',
-          'opendap_hyrax_large_format_RS03ASHS-PN03B-06-CAMHDA301_2016_01_01_CAMHDA301-20160101T180000Z.mp4',
-          'opendap_hyrax_large_format_RS03ASHS-PN03B-06-CAMHDA301_2016_02_10_CAMHDA301-20160210T180000Z.mp4']
-videos = [os.path.join(basedir, p) for p in videos]
-
-
-class ImageUtils:
-    @staticmethod
-    def grayscale_to_color(im):
-        return cv2.merge([im]*3)
-
-# Iterators
-class Capture(object):
-    """A capture that reads frames from a video device or file,
-    optionally seeking"""
-
-    def __init__(self, capture, start_ms=None, end_ms=None):
-        self.cap = capture
-        self.end_ms = end_ms
-        if start_ms is not None:
-            self.cap.set(cv2.CAP_PROP_POS_MSEC, start_ms * 1000)
-
-    def _reached_end(self):
-        return (self.end_ms is not None) and (
-            self.cap.get(cv2.CAP_PROP_POS_MSEC) >= self.end_ms * 1000)
-
-    def frames(self):
-        while self.cap.isOpened() and not self._reached_end():
-            ret, frame = self.cap.read()
-            if not ret:
-                break
-
-            yield frame
-
 
 # Before embarking on a multi-path dataflow architecture
 # consider that push-oriented has complexity when there are two inputs
@@ -76,8 +39,7 @@ class MotionEstimation(object):
         self.name = name
         w = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         h = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-    	self.fps = self.cap.get(cv2.CAP_PROP_FPS)
-	print self.fps
+        self.fps = self.cap.get(cv2.CAP_PROP_FPS)
         self.orig_out = cv2.VideoWriter("{}_orig.avi".format(self.name),
                            cv2.VideoWriter_fourcc(*'MJPG'),
                            self.fps,
@@ -133,7 +95,7 @@ class MotionEstimation(object):
         yield None
 
 
-for v in videos:
+for v in getvideopaths():
     cap = cv2.VideoCapture(v)
 
     input_frames = Capture(cap, start, end)
