@@ -2,7 +2,7 @@
 import numpy as np
 import cv2
 
-cap = cv2.VideoCapture('sample_iTunes.mov.zip')
+cap = cv2.VideoCapture('sample_iTunes.mov')
 
 for i in range(0, 100):
     if i % 10 == 0:
