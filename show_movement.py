@@ -25,6 +25,7 @@ orig_out = cv2.VideoWriter("selected_orig.avi",
                            fps,
                            (int(w), int(h)))
 thresh_out = None
+fdelta_out = None
 
 # use the first frame as the golden copy
 firstFrame = None
@@ -37,26 +38,34 @@ while cap.isOpened() and cap.get(cv2.CAP_PROP_POS_MSEC) < end * 1000:
     #cv2.imwrite('frame_{0}.jpg'.format(fn), frame)
 
     # resize
-    frame = imutils.resize(frame, width=500)
+    resized = imutils.resize(frame, width=500)
     # convert to grayscale
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
     # blur so that we don't detect spurious frame-to-frame differences
     # TODO: we are sort of trying to detect a blurry entity (the emissions),
     # TODO: so have to play with the stencil size
-    gray = cv2.GaussianBlur(gray, (21, 21), 0)
+    blurred = cv2.GaussianBlur(gray, (21, 21), 0)
 
     # store first frame and initialize the writer
     if firstFrame is None:
-        firstFrame = gray
+        firstFrame = blurred
         thresh_out = cv2.VideoWriter("selected_thresh.avi",
             cv2.VideoWriter_fourcc(*'MJPG'),
             fps,
-            (firstFrame.cols, firstFrame.rows))
+            (firstFrame.shape[1], firstFrame.shape[0])) 
+        fdelta_out = cv2.VideoWriter("selected_fdelta.avi",
+            cv2.VideoWriter_fourcc(*'MJPG'),
+            fps,
+            (firstFrame.shape[1], firstFrame.shape[0])) 
+        blurred_out = cv2.VideoWriter("selected_blurred.avi",
+            cv2.VideoWriter_fourcc(*'MJPG'),
+            fps,
+            (firstFrame.shape[1], firstFrame.shape[0])) 
         continue
 
     # compute the absolute difference between the current frame and
         # first frame
-    frameDelta = cv2.absdiff(firstFrame, gray)
+    frameDelta = cv2.absdiff(firstFrame, blurred)
     thresh = cv2.threshold(frameDelta, 25, 255, cv2.THRESH_BINARY)[1]
 
     # dilate the thresholded image to fill in holes, then find contours
@@ -64,7 +73,12 @@ while cap.isOpened() and cap.get(cv2.CAP_PROP_POS_MSEC) < end * 1000:
     thresh = cv2.dilate(thresh, None, iterations=2)
 
     orig_out.write(frame)
-    thresh_out.write(thresh)
+    blurred_with_color = cv2.merge([blurred]*3)
+    blurred_out.write(blurred_with_color)
+    fdelta_with_color = cv2.merge([frameDelta]*3)
+    fdelta_out.write(fdelta_with_color)
+    thresh_with_color = cv2.merge([thresh]*3)
+    thresh_out.write(thresh_with_color)
 
     fn += 1
 
