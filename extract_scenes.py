@@ -1,16 +1,28 @@
 import cv2
 import os
 from common import Capture
-import Pyro4
-import extract_scenes_compilable
+from time import time
 
 video_root = "/root/data/videos/"
 
-class ExtractScenes(object):
 
-    def extract_scenes(self, filename, scene_bounds):
+class ExtractScenes(object):
+    def __init__(self):
+        self._gen = None
+
+    def getnext(self):
+        try:
+            return self._gen.next()
+        except StopIteration:
+            self._gen = None
+            return None
+
+    def _generator(self, filename, scene_bounds):
         outfiles = []
         fullpath = os.path.join(video_root, filename)
+
+        realtime_start = time()
+        total_frames = 0
 
         for i, s, e in scene_bounds:
             cap = cv2.VideoCapture(fullpath)
@@ -29,16 +41,20 @@ class ExtractScenes(object):
 
             for frame in input_frames.frames():
                 out.write(frame)
+                total_frames += 1
 
             out.release()
             cap.release()
             outfiles.append(outname)
+            yield outname
+            print "extracted scene ", i, s, e
 
-        return outfiles
+        realtime_end = time()
+
+        print "realtime fps: ", fps
+        print "copying fps: ", float(total_frames)/(realtime_end-realtime_start)
 
 
-if __name__ == '__main__':
-    daemon = Pyro4.Daemon(host='172.17.0.4', port=7771)
-    uri = daemon.register(ExtractScenes)
-    print "proxy\n", uri
-    daemon.requestLoop()
+    def extract_scenes(self, filename, scene_bounds):
+        assert self._gen is None, "Didn't get all frames"
+        self._gen = self._generator(filename, scene_bounds)
